@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="author" content="{{ organization.display }}">
+        <meta name="description" content="Invoice N° {{ invoice.reference }}">
+        <meta name="generator" content="2Lead.in">
+    </head>
+
+    <body>
+    	<div class="container">
+			<div class="row header">
+				<div class="col-md-4">
+					<h3>{{ organization.display }}</h3>
+					{% if organization.address %}
+					<address>
+						{{ organization.address|nl2br }}
+					</address>
+					{% endif %}
+					{% if organization.business_number %}Business N° {{ organization.business_number }}{% endif %}
+				</div>
+				{%if invoice.client %}
+				<div class="col-md-4 col-md-offset-4 text-right">
+					<h3>{{ invoice.client.display }}</h3>
+					{% if organization.address %}
+					<address>
+						{{ invoice.client.address|nl2br }}
+					</address>
+					{% endif %}
+					{% if invoice.client.business_number %}Business N° {{ invoice.client.business_number }}{% endif %}
+				</div>
+				{% endif %}
+			</div>
+			<div class="clearfix"></div>
+
+			<div class="row details">
+				<div class="col-md-4">
+					<ul class="list-unstyled list-items">
+						<li><span class="title">Invoice N°</span> {{invoice.reference}}</li>
+						{%if invoice.project %}<li><span class="title">Project</span> {{ invoice.project.display }}</li>{% endif %}
+				</ul></div>
+				<div class="col-md-4 col-md-offset-4 text-right">
+					<ul class="list-unstyled list-items">
+						<li><span class="title">Issued :</span> {{ invoice.created|dateformat }}</li>
+						{% if invoice.due %}<li><span class="title">Due :</span> {{ invoice.due|dateformat }}</li>{% endif %}
+					</ul>
+				</div>
+			</div>
+			<div class="clearfix"></div>
+			<div class="row entries">
+				<table class="container-fluid table table-striped entries">
+					<thead class="row">
+						<tr>
+							<th>Designation</th>
+							<th style="text-align: center">Unit price</th>
+							<th style="text-align: center">Quantity</th>
+							<th style="text-align: right">Total price</th>
+						</tr>
+					</thead>
+					<tbody class="ui-sortable">
+						{% for entry in invoice.entries %}
+							<tr class="entries">
+								<td>
+									{{ entry.description }}{% if entry.optional %} <span class="badge">Offered</span>{% endif %}
+								</td>
+								<td style="text-align: center">{{ entry.amount|money }} {{ invoice.currency }}</td>
+								<td style="text-align: center">{{ entry.quantity }}</td>
+								<td style="text-align: right">{{ entry.amount * entry.quantity}} {{ invoice.currency }}</td>
+							</tr>
+						{% else %}
+						<tr class="empty">
+							<td colspan="6" style="text-align: center">
+								<div class="alert">No entries found.</div>
+							</td>
+						</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			</div>
+			<div class="row">
+				<div class="col-md-8">
+					<p>{{ invoice.message|safe }}</p>
+				</div>
+				<div class="col-md-4 total">
+					<table class="pull-right">
+						<tr>
+							<td class="label">Subtotal</td>
+							<td>{{ invoice.amount|money }} {{ invoice.currency }}</td>
+						</tr>
+						{% if invoice.tax %}<tr>
+							<td class="label">Tax</td>
+							<td>{{ invoice.tax }} %</td>
+						</tr>{% endif %}
+						{% if invoice.discount %}<tr>
+							<td class="label">Discounts</td>
+							<td>{% if invoice.discount_percent %}{{ invoice.discount }} %{% else %}{{ invoice.discount|money }} {{ invoice.currency }}{% endif %}</td>
+						</tr>{% endif %}
+						{% if invoice.payments %}<tr>
+							<td class="label">Amount paid</td>
+							<td>{{ invoice.total_payments|money }} {{ invoice.currency }}</td>
+						</tr>{% endif %}
+						<tr>
+							<td class="label">Balance</td>
+							<td>{{ invoice.balance|money }} {{ invoice.currency }}</td>
+						</tr>
+					</table>
+				</div>
+			</div>
+
+			{% if g.organization.show_payments and invoice.payments %}
+			<div class="payments row">
+				<h4>Payments</h4>
+				<table class="container-fluid table table-striped payments">
+					<thead class="row">
+						<tr>
+							<th>Date</th>
+							<th style="text-align: right">Amount</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for payment in invoice.payments %}
+							<tr class="entries">
+								<td>{{ payment.paid|dateformat }}</td>
+								<td style="text-align: right">{{ payment.amount|money }} {{ invoice.currency }}</td>
+							</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			</div>
+			{% endif %}
+		</div>
+	</body>
+</html>
