@@ -6,7 +6,7 @@ with some modifications for the tests.
 
 It generate the invoices in PDF and saves them to Amazon S3.
 
-Sadly, this project is now abandonned definitely.
+Sadly, this project is now abandoned definitely.
 
 
 
